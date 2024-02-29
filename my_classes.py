@@ -17,11 +17,16 @@ class planet:
         for i in planet_list: 
             if i != self:
                 unit_vector = self.position.unit_vector_to(i.position)
-                force = unit_vector.multiply_by(-gravitational_constant * ((self.mass * i.mass) / ((self.distance_from(i)) **2)))
-                print(force.magnitude())
+                mass_product = self.mass * i.mass 
+                distance_squared = self.distance_from(i)**2
+                multiple = -gravitational_constant * mass_product / distance_squared 
+                force = unit_vector.multiply_by(multiple) # using vector form of newton's law of gravitation. this is rearranged so the unit vector is in front 
                 resultant_force = resultant_force.add(force)
         return resultant_force
-
+    def find_acceleration(self,planet_list,gravitational_constant): 
+        resultant_force = self.resultant_force(planet_list,gravitational_constant)
+        acceleration = resultant_force.divide_by(self.mass)
+        return acceleration
 class vector: 
     def __init__(self,x,y): 
         self.x=x
