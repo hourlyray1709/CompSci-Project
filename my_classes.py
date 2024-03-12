@@ -27,15 +27,16 @@ class planet:
         resultant_force = self.resultant_force(planet_list,gravitational_constant)
         acceleration = resultant_force.divide_by(self.mass)
         return acceleration
+#-----------------------------------------------------------------------------------------------END OF PLANET CLASS
 class vector: 
     def __init__(self,x,y): 
         self.x=x
         self.y=y 
-    def multiply(self,vector): 
+    def multiply(self,vector):              # tested on 5/3/2024 - refer to log 2 
         x = self.x * vector.x 
         y = self.y * vector.y 
         return x + y
-    def print_position(self): 
+    def print_position(self):               # tested on 5/3/2024 - refer to log 2 
         print(self.x)
         print(self.y)
     def get_position(self): 
@@ -48,9 +49,7 @@ class vector:
         distance = displacement_vector.magnitude()
         unit_vector = displacement_vector.divide_by(distance)
         return unit_vector 
-
-    
-def add(self,vector1): 
+def add(self,vector1):                                            # tested on 5/3/2024 - refer to log 2 
     x = self.x + vector1.x 
     y = self.y + vector1.y 
     return vector(x,y)
@@ -74,6 +73,28 @@ def multiply_by_constant(self,constant):
     y = self.y * constant 
     return vector(x,y)
 vector.multiply_by = multiply_by_constant
+#-----------------------------------------------------------------------------------------------END OF VECTOR CLASS 
+class integration_term: 
+    def __init__(self,coefficient,power):
+        self.coefficient = coefficient 
+        self.power = power 
+    def integrate(self):                           # this ignores constant of integration which needs to be added at the end after the whole expression is evaluated 
+        self.power = self.power + 1                          # add one to the power 
+        self.coefficient = self.coefficient / self.power     # divide by the new power 
+        return self 
+class integration_expression: 
+    def __init__(self,*terms): 
+        self.terms = terms 
+    def integrate(self): 
+        new_terms = []
+        for term in self.terms: 
+            new_term = term.integrate()
+            new_terms.append(new_term)
+        self.terms = new_terms 
+        return self.terms 
+
+            
+
 
 
 
