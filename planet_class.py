@@ -36,7 +36,18 @@ class planet:
         force = unit_vec * (gravitational_constant * (mass1 * mass2) / (distance**2)) #use an equivalent form of newton's law of gravitation that makes more sense to me 
         return force 
     def find_acceleration(self): 
+        self.acceleration = self.resultant_force / self.mass
         return self.resultant_force / self.mass # -----------------------------------use F = ma, rearrange to a = F/m 
+    def find_v_half_step(self, time_step_size): 
+        acceleration = self.acceleration #------------------------------------------assume that we have already found the acceleration using the above function 
+        self.v_half_step += acceleration * time_step_size #-------------------------store the new velocity at half a time step away 
+        return self.v_half_step #---------------------------------------------------return it in case we want to see/test it 
+    def find_new_pos(self, time_step_size): 
+        self.position += self.v_half_step * time_step_size #------------------------using leapfrog integration, find the new position and replace the current position attribute
+        return self.position #------------------------------------------------------return it in case we want to see/test it 
+
+
+
 
         
 
