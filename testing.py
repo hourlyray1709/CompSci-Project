@@ -1,5 +1,5 @@
-from vector_class import vector
-from planet_class import planet, find_pairs, find_resultant_force
+from lib.vector_class import vector
+from lib.planet_class import planet, find_pairs, find_resultant_force
 import matplotlib.pyplot as plt #---------------------------------------------------import all necessary libraries for testing
 
 GRAVITATIONAL_CONSTANT = 6.6743 * 10 ** -11 #---------------------------------------define g

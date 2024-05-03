@@ -1,5 +1,7 @@
 from tkinter import * 
 from tkinter import ttk 
+from matplotlib.figure import Figure 
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 pos_var = "" 
 vel_var = "" 
@@ -26,7 +28,7 @@ velocity_field.grid(row=1,column=1)
 scrollMax = 100
 scrollMin = -100
 scrollbar = Scale(tab1, orient=HORIZONTAL, from_ = scrollMin, to = scrollMax)
-scrollbar.grid(row=3,column=0)
+scrollbar.grid(row=2,column=0)
 
 popup = Menu(window) #-------------------------------------create a new menu 
 popup.add_command(label="Change position") #---------------add a function to it 
@@ -37,6 +39,19 @@ def popup_menu(event):
     popup.tk_popup(event.x_root, event.y_root, 0) #-------define it to popup at the mouse location 
 
 window.bind("<Button-3>", popup_menu) #-------------------bind it to right click 
+
+y_values = [i**2 for i in range(0,100)] #----------------create data to plot 
+fig = Figure((5,5), 100) #-------------------------------create a figure on which to display the data 
+plot = fig.add_subplot() #-------------------------------plot the data 
+plot.plot(y_values)
+canvas = FigureCanvasTkAgg(fig, master=tab1) #-----------create a canvas 
+canvas.draw()
+canvas.get_tk_widget().grid(row=2,column=0) #------------pack it into tab1
+toolbar_frame = Frame(tab1)
+toolbar = NavigationToolbar2Tk(canvas, toolbar_frame) #-----------create toolbar for manipulating the graph 
+toolbar_frame.grid(row=3,column=0)
+toolbar.update() #---------------------------------------not sure what this does 
+canvas.get_tk_widget().grid(row=2, column=0) #-----------pack the toolbar into the graph
 
 
 

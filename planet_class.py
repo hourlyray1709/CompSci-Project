@@ -9,7 +9,11 @@ def find_pairs(planet_list):
             pair_list.append(pair)
     return pair_list #------------------------------------------------------------------------------return all pairs 
 def find_resultant_force(planet_list, gravitational_constant): 
+    if len(planet_list)<2: 
+        return 0 
     temp_planet_list = planet_list
+    for i in range(len(temp_planet_list)): 
+        temp_planet_list[i].resultant_force = vector(0,0)
     for i in range(len(temp_planet_list)): #--------------------------------------------------------loop over all planets 
         exclusive_list = [temp_planet_list[k] for k in range(i+1, len(temp_planet_list))] #---------find all others that pair up with it 
         for k in range(len(exclusive_list)):
@@ -19,12 +23,12 @@ def find_resultant_force(planet_list, gravitational_constant):
             pair[0].resultant_force += force_on_temp_planet
             pair[1].resultant_force += force_on_exlusive_planet
 class planet: 
-    def __init__(self, position, mass, v_half_step=vector(0,0), velocity=vector(0,0), acceleration=vector(0,0), resultant_force=vector(0,0)): 
+    def __init__(self, position, mass, velocity=vector(0,0), acceleration=vector(0,0), resultant_force=vector(0,0)): 
         self.position = position #---------------------------------------------------initialise all of the attributes 
         self.velocity = velocity 
         self.acceleration = acceleration 
         self.mass = mass 
-        self.v_half_step = v_half_step 
+        self.v_half_step = velocity
         self.resultant_force = resultant_force
     def find_force(self, planet_input, gravitational_constant): #--------------------finds the force exerted on the planet self
         mass1 = self.mass #----------------------------------------------------------fetch the masses 
@@ -33,7 +37,7 @@ class planet:
         position2 = planet_input.position 
         distance = self.position >> planet_input.position #--------------------------find the distance between the planets 
         unit_vec = self.position % planet_input.position #---------------------------find the unit vector from self to planet input 
-        force = unit_vec * (gravitational_constant * (mass1 * mass2) / (distance**2)) #use an equivalent form of newton's law of gravitation that makes more sense to me 
+        force = unit_vec * (gravitational_constant * (mass1 * mass2) / (distance**2))  #use an equivalent form of newton's law of gravitation that makes more sense to me 
         return force 
     def find_acceleration(self): 
         self.acceleration = self.resultant_force / self.mass
