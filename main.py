@@ -3,37 +3,59 @@
 from vector_class import vector 
 from planet_class import planet, find_resultant_force
 from simulate import simulate 
+from queue_class import queue 
 
 from tkinter import * 
 from tkinter import ttk
 from matplotlib.figure import Figure 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from matplotlib import animation 
+from matplotlib import pyplot as plt, animation 
+from functools import partial 
 
 #-----------------------------------------------------------------------------------------------------------------------Core variables 
-planet1 = planet(position=vector(0,0), mass=1.98*10**30, velocity=vector(0,0))
-planet2 = planet(position=vector(150000000000,0), mass= 5.28*10**24, velocity=vector(0,25000))
-planet3 = planet(position=vector(104120012,502002), mass=1.4039 * 10 ** 23, velocity=vector(500,0))
+max_trail_length = 500 #-------------------------how many past positions to keep track of when generating a trail of the planets 
+planet1 = planet(position=vector(0,0), mass=1.989*10**30, velocity=vector(0,0), past_positions=queue([], max_trail_length))
+planet2 = planet(position=vector(250*10**8, 0), mass=5.972*10**24, velocity=vector(0, 35000), past_positions=queue([], max_trail_length))
+planet3 = planet(position=vector(-250*10**8, 0), mass=10.972*10**24, velocity=vector(0, -35000), past_positions=queue([], max_trail_length))
+planet4 = planet(position=vector(-500*10**8, 0), mass=5.972*10**24, velocity=vector(0, -50000), past_positions=queue([], max_trail_length))
+planet5 = planet(position=vector(-125*10**8, 0), mass=3.20*10**24, velocity=vector(0, -50000), past_positions=queue([], max_trail_length))
 grav_const = 6.67430 * 10 ** -11 
-time_step_size = 0.01 
-planet_list = [planet1, planet2, planet3]
-update_every = 1 #------------------------------each frame will represent this number in seconds 
-frames = int(update_every / time_step_size)
+time_step_size = 1000
+planet_list = [planet1, planet2, planet3, planet4, planet5]
+update_every = 120000 #------------------------------each frame will represent this number in seconds 
+frames_ = int(update_every / time_step_size)
+fps = 24
+paused = False  
+
+init_attributes = []
+for i in planet_list: 
+    attributes = [i.position, i.mass, i.velocity, i.v_half_step, i.acceleration]      # fetch all starting attributes 
+    init_attributes.append(attributes)
+
+
+
 #-----------------------------------------------------------------------------------------------------------------------Core variables 
 
 #--------------------------------------------------------------------------------------------------------------------GUI stuff 
 main_window = Tk()
 
+style = ttk.Style()
+style.configure("TFrame", background="grey")
+
 notebook = ttk.Notebook(main_window)
 notebook.pack() #------------------------------initiate notebook for tab control 
 
-main_tab = ttk.Frame(notebook) #---------------create tab for main window 
+main_tab = ttk.Frame(notebook, style="TFrame") #---------------create tab for main window 
 settings_tab = ttk.Frame(notebook) #-----------create tab for settings 
 notebook.add(main_tab, text="Main Window")
 notebook.add(settings_tab, text="Settings") #--add tabs to notebook 
 
-simulation_figure = Figure(figsize=(5,5), dpi=100)
-simulation_plot = simulation_figure.add_subplot()
+simulation_figure = Figure(figsize=(8,8), dpi=100, facecolor="grey")
+max_val = 10**12
+simulation_plot = simulation_figure.add_subplot(xlim=(-max_val, max_val), ylim=(-max_val, max_val))
+simulation_plot.set_facecolor("white")
+dots = simulation_plot.scatter([],[])
+plt.grid()
 # plot something 
 simulation_canvas = FigureCanvasTkAgg(simulation_figure, master=main_tab) #------create the canvas 
 simulation_canvas.draw()
@@ -59,41 +81,68 @@ g_expo_label.grid(row=1, column=2)
 g_expo_spinbox = Spinbox(settings_tab, from_ = -100, to=100, state="readonly") #-------------create a spinbox 
 g_expo_spinbox.grid(row=1,column=3)
 
-play_button = Button(main_tab, text="Play/Pause")
+def pause_func(): 
+    global paused              # use the globally defined paused variable to check if the animation is currently paused
+    if paused == True: 
+        paused = False       
+    else: 
+        paused = True          # swap the Boolean values, so when user presses it, it changes to true, and if it was true then it changes to false 
+    if paused == True: 
+        anim.pause()           # if needed to pause, pause it 
+    else: 
+        anim.resume()          # if needed to resume, resume it 
+def reset(): 
+    global planet_list 
+    global init_planets 
+    global anim 
+    for i in range(len(planet_list)): 
+        planet_list[i].position = init_attributes[i][0]
+        planet_list[i].mass = init_attributes[i][1] 
+        planet_list[i].velocity = init_attributes[i][2]
+        planet_list[i].v_half_step = init_attributes[i][3]
+        planet_list[i].acceleration = init_attributes[i][4]
+
+    
+
+play_button = Button(main_tab, text="Play/Pause", command=pause_func)
 play_button.grid(row=2,column=0)
 
-reset_button = Button(main_tab, text="Reset simulation")
+reset_button = Button(main_tab, text="Reset simulation", command=reset)
 reset_button.grid(row=3,column=0)
 
-def fetch_positions(planet_list): 
-    x_pos = []
-    y_pos = [] 
-    for i in planet_list: 
-        x_pos.append(i.position.x) #-----------append the planet's position's x value to the array 
-        y_pos.append(i.position.y) #-----------append the planet's position's y value to the array 
-    return [x_pos,y_pos] #---------------------return it 
+def animate(i): 
+    x = [] 
+    y = []
+    trails = [] 
+    for i in range(frames_): 
+        simulate(planet_list, grav_const, time_step_size) #-----------update the position of all the planets 
+    for i in planet_list:
+        trail_x = [] 
+        trail_y = []  
+        x.append(i.position.x)                        #--------------append the CURRENT positions of each planet 
+        y.append(i.position.y)
+        for position_ in i.past_positions.arr:
+            trail_x.append(position_.x)
+            trail_y.append(position_.y)              #---------------fetch all OLD positions of each planet 
+        trail = simulation_plot.plot(trail_x,trail_y, "r")  #----------plot the OLD positions of each planet 
+        trails.append(trail[0])                            #---------save the artist 
+    dots = simulation_plot.scatter(x,y, c="k") #------------plot the scatter graph
+    trails.append(dots)                       #-------------save all artists 
+    return trails                            #------------return the iterable of the artists
 
-def update_plot(planet_list): 
-    positions = fetch_positions(planet_list) #----------------------------------fetch the positions of the planets 
-    x_coords = positions[0]
-    y_coords = positions[1]
-    simulation_figure = Figure((5,5), dpi=100) 
-    simulation_plot = simulation_figure.add_subplot() #-------------------------create a plot to draw the planets on 
-    simulation_plot.plot(x_coords, y_coords, "bo")
-    #simulation_plot.autoscale(False)
-    simulation_canvas = FigureCanvasTkAgg(simulation_figure, master=main_tab)
-    simulation_canvas.draw() 
-    simulation_canvas.get_tk_widget().grid(row=0, column=0) #-------------------pack the plot into tkinter 
-
-anim = animation.FuncAnimation()
-#-----------------------------------------------------------------------------------------------------------------------GUI stuff 
+anim = animation.FuncAnimation(simulation_figure, animate, frames=100, blit=True) #-------use animation to update the graph
+button_values = {
+    t_step_scale:"", 
+    g_const_scale:"", 
+    g_expo_spinbox:"", 
+}
 
 while True: 
-    print("{} {} {}".format(planet1.position >> planet2.position, planet1.resultant_force.size, planet2.resultant_force.size))
-    for i in range(frames):
-        simulate(planet_list,grav_const,time_step_size)
-    update_plot(planet_list)
-    main_window.update()
+    try:
+        main_window.update() #---------------------------------------run the main loop, this allows me to handle widget interactions 
+    except: 
+        print("Crashed")
+        quit()
 
 
 

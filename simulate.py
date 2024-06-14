@@ -6,3 +6,4 @@ def simulate(planet_list, grav_const, t_step_size):
         i.find_acceleration() #-----------------------------find new acceleration of each planet 
         i.find_v_half_step(t_step_size) #-------------------find velocity at half a time step away 
         i.find_new_pos(t_step_size)
+        i.past_positions.enqueue(i.position)

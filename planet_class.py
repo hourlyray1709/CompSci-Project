@@ -1,4 +1,5 @@
-from vector_class import vector 
+from vector_class import vector
+from queue_class import queue  
 def find_pairs(planet_list): 
     temp_planet_list = planet_list
     pair_list = [] 
@@ -23,13 +24,14 @@ def find_resultant_force(planet_list, gravitational_constant):
             pair[0].resultant_force += force_on_temp_planet
             pair[1].resultant_force += force_on_exlusive_planet
 class planet: 
-    def __init__(self, position, mass, velocity=vector(0,0), acceleration=vector(0,0), resultant_force=vector(0,0)): 
+    def __init__(self, position, mass, velocity=vector(0,0), acceleration=vector(0,0), resultant_force=vector(0,0), past_positions=queue([], 0)): 
         self.position = position #---------------------------------------------------initialise all of the attributes 
         self.velocity = velocity 
         self.acceleration = acceleration 
         self.mass = mass 
         self.v_half_step = velocity
         self.resultant_force = resultant_force
+        self.past_positions = past_positions
     def find_force(self, planet_input, gravitational_constant): #--------------------finds the force exerted on the planet self
         mass1 = self.mass #----------------------------------------------------------fetch the masses 
         mass2 = planet_input.mass 
