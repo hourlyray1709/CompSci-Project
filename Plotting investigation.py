@@ -25,8 +25,8 @@ toolbar.update()
 toolbar.grid(row=1, column=0)                     #-----------pack the toolbar inside of the tkinter window 
 canvas.get_tk_widget().grid(row=0, column=0)      #-----------pack the canvas inside of the tkinter window 
 
-myplot = plt.scatter([5,23,40],[100,6,2])
-myplot.pack()
+myplot = plt.scatter(x=[5,23,40], y=[50,100,150])
+plt.grid()
 
 tkinter.mainloop()
 
