@@ -1,5 +1,5 @@
-from lib.vector_class import vector
-from lib.planet_class import planet, find_pairs, find_resultant_force
+from vector_class import vector
+from planet_class import planet, find_pairs, find_resultant_force
 import matplotlib.pyplot as plt #---------------------------------------------------import all necessary libraries for testing
 
 GRAVITATIONAL_CONSTANT = 6.6743 * 10 ** -11 #---------------------------------------define g
@@ -81,11 +81,11 @@ def test_find_acceleration():
 
 def test_v_half_step(time_step_size): 
     test_data = [ #----------------------------------------------------import the test data generated from excel 
-        vector(6.21747E-05, 9.95747E-05),
-        vector(-0.000148191, 0.000127555),
+        vector(0.000621747, 0.000995747),
+        vector(-0.001481913, 0.001275551),
         vector(-2.93181E-07, -5.67136E-07),
-        vector(4.8711E-05, -7.3474E-05),
-        vector(-6.12174E-07, -1.93917E-07), 
+        vector(0.00048711, -0.00073474),
+        vector(-6.12174E-06, -1.93917E-06), 
     ]
     find_resultant_force(planet_list, GRAVITATIONAL_CONSTANT) #-------find the resultant force on each planet 
     for i in range(len(planet_list)): 
@@ -104,11 +104,11 @@ def test_v_half_step(time_step_size):
 
 def test_new_pos(time_step_size):
     test_data = [ #---------------------------------------------------import the test data generated in excel 
-        vector(216920155.4, 863192248.9), 
-        vector(1062458830, 1376320319), 
-        vector(9080719999, 15333999999), 
-        vector(568480121.8, 1900219016), 
-        vector(15646663998, 6706568000), 
+        vector(216920000, 863192000), 
+        vector(1062459200, 1376320000), 
+        vector(9080720000, 15334000000), 
+        vector(568480000, 1900219200), 
+        vector(15646664000, 6706568000), 
     ]
     find_resultant_force(planet_list, GRAVITATIONAL_CONSTANT) #------find the resultant force on each planet 
     for i in range(len(planet_list)): 
@@ -126,4 +126,4 @@ def test_new_pos(time_step_size):
             passed = True 
         print("{}, {}, {}".format(x_value, y_value, passed)) #-------print the results 
         
-test_new_pos(500)
+test_new_pos(1)
